@@ -3,6 +3,8 @@
 GreenCart is a MERN-based e-commerce platform designed for a seamless online shopping experience.  
 The frontend is built with React, providing a clean UI for browsing products, categories, and managing user sessions.
 
+[View live demo]
+
 ---
 
 ## Project Structure

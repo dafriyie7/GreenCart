@@ -12,12 +12,12 @@ export const AppContextProvider = ({ children }) => {
 	const [showuserLogin, setShowUserLogin] = useState(false);
 	const [products, setProducts] = useState([]);
 	const [cartItems, setCartItems] = useState({})
-	const [searchQuery, setSearchQuery] = useState({})
+	const [searchQuery, setSearchQuery] = useState("")
 
 	const currency = import.meta.env.VITE_CURRENCY;
 
 	// fetch all products
-	const fetchProducts = async () => {
+	const fetchProducts = () => {
 		setProducts(dummyProducts);
 	};
 

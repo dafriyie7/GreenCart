@@ -8,11 +8,11 @@ export const AppContext = createContext();
 export const AppContextProvider = ({ children }) => {
 	const navigate = useNavigate();
 	const [user, setUser] = useState(null);
-	const [isSeller, setIsSeller] = useState(false);
+	const [isSeller, setIsSeller] = useState(true);
 	const [showuserLogin, setShowUserLogin] = useState(false);
 	const [products, setProducts] = useState([]);
-	const [cartItems, setCartItems] = useState({})
-	const [searchQuery, setSearchQuery] = useState("")
+	const [cartItems, setCartItems] = useState({});
+	const [searchQuery, setSearchQuery] = useState("");
 
 	const currency = import.meta.env.VITE_CURRENCY;
 
@@ -42,21 +42,43 @@ export const AppContextProvider = ({ children }) => {
 		toast.success("Cart updated");
 	};
 
-
 	// remove product from cart
 	const removeFromCart = (itemId) => {
-		let cartData = structuredClone(cartItems)
-		
+		let cartData = structuredClone(cartItems);
+
 		if (cartData[itemId]) {
-			cartData[itemId] -= 1
+			cartData[itemId] -= 1;
 			if (cartData[itemId] === 0) {
-				delete cartData[itemId]
+				delete cartData[itemId];
 			}
 		}
 
-		setCartItems(cartData)
-		toast.success("Removed from cart")
-	}
+		setCartItems(cartData);
+		toast.success("Removed from cart");
+	};
+
+	// get cart item count
+	const getCartCount = () => {
+		let totalCount = 0;
+		for (const item in cartItems) {
+			totalCount += cartItems[item];
+		}
+		return totalCount;
+	};
+
+	// get cart total amount
+	const getCartAmount = () => {
+		let totalAmount = 0;
+		for (const items in cartItems) {
+			let itemInfo = products.find((product) => product._id === items);
+
+			if (cartItems[items] > 0) {
+				totalAmount += itemInfo.offerPrice * cartItems[items];
+			}
+		}
+
+		return Math.floor(totalAmount * 100) / 100;
+	};
 
 	useEffect(() => {
 		fetchProducts();
@@ -77,7 +99,9 @@ export const AppContextProvider = ({ children }) => {
 		removeFromCart,
 		cartItems,
 		searchQuery,
-		setSearchQuery
+		setSearchQuery,
+		getCartAmount,
+		getCartCount,
 	};
 
 	return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

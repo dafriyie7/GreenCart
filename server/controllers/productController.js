@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import Product from "../configs/Product.js";
+import Product from "../models/Product.js";
 
 // add product: /api/product/add
 export const addProduct = async (req, res) => {
@@ -56,7 +56,10 @@ export const changeStock = async (req, res) => {
 
 		await Product.findByIdAndUpdate(id, { inStock });
 
-		res.json({ success: true, message: "Product stock changed successfully" });
+		res.json({
+			success: true,
+			message: "Product stock changed successfully",
+		});
 	} catch (error) {
 		console.log(error.message);
 		res.status(500).json({ success: false, message: error.message });

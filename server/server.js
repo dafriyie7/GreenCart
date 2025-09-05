@@ -9,6 +9,7 @@ import connectCloudinary from "./configs/cloudinary.js";
 import productRouter from "./routes/productRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
 import addressRouter from "./routes/addressRoutes.js";
+import orderRouter from "./routes/orderRoutes.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -34,6 +35,7 @@ app.use("/api/user", userRouter)
 	.use("/api/product", productRouter)
 	.use("/api/cart", cartRouter)
 	.use('/api/address', addressRouter)
+	.use('/api/order', orderRouter)
 
 const startServer = async () => {
 	try {

@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 
 // middlewares
 app.use(express.json());

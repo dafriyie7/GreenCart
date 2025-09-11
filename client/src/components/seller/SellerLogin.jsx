@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const SellerLogin = () => {
-	const { isSeller, setIsSeller, navigate } = useAppContext();
+	const { isSeller, setIsSeller, navigate, axios } = useAppContext();
 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setIsSeller(true);
+		
+		try {
+			const { data } = await axios.post('/seller/login', { email, password })
+			
+			if (data.success) {
+				setIsSeller(true)
+				navigate('/seller')
+			} else {
+				toast.error(data.message)
+			}
+		} catch (error) {
+			console.log(error.response.data.message)
+			toast.error(error.response.data.message)
+
+		}
 	};
 
 	useEffect(() => {

@@ -5,7 +5,8 @@ import Product from "../models/Product.js";
 
 export const placeOrderCOD = async (req, res) => {
 	try {
-		const { uiserId, items, address } = req.body;
+		const { items, address } = req.body;
+		const { userId } = req;
 
 		if (!address || items.length === 0) {
 			return res
@@ -13,9 +14,20 @@ export const placeOrderCOD = async (req, res) => {
 				.json({ success: false, message: "Invalid details" });
 		}
 
-		let amount = await items.reduce(async (acc, item) => {
-			const product = await Product.findById(item.product);
-			return (await acc) + product.price * item.quantity;
+		const productIds = items.map((item) => item.product);
+		const products = await Product.find({ _id: { $in: productIds } });
+
+		const productMap = new Map(products.map((p) => [p._id.toString(), p]));
+
+		let amount = items.reduce((acc, item) => {
+			const product = productMap.get(item.product);
+			if (product) {
+				// Using offerPrice if available, otherwise price
+				return (
+					acc + (product.offerPrice || product.price) * item.quantity
+				);
+			}
+			return acc;
 		}, 0);
 
 		// add tax charge (2%)
@@ -41,12 +53,13 @@ export const placeOrderCOD = async (req, res) => {
 // Get orders by user ID: /api/order/user
 export const getUserOrders = async (req, res) => {
 	try {
-		const { userId } = req.body;
+		const { userId } = req;
 		const orders = await Order.find({
 			userId,
 			$or: [{ paymentType: "COD" }, { isPaid: true }],
 		})
-			.populate("items.product address")
+			.populate({ path: "items.product" })
+			.populate({ path: "address" })
 			.sort({ createdAt: -1 });
 
 		res.status(200).json({ success: true, orders });
@@ -62,8 +75,9 @@ export const getAllOrders = async (req, res) => {
 		const orders = await Order.find({
 			$or: [{ paymentType: "COD" }, { isPaid: true }],
 		})
-			.populate("items.product address")
-			.sort({ createdAt: -1 })
+			.populate({ path: "items.product" })
+			.populate({ path: "address" })
+			.sort({ createdAt: -1 });
 
 		res.status(200).json({ success: true, orders });
 	} catch (error) {

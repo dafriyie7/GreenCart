@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
-import { assets, dummyOrders } from "../../assets/assets";
+import { assets } from "../../assets/assets";
+import toast from "react-hot-toast";
 
 const Orders = () => {
-	const { currency } = useAppContext();
+	const { currency, axios } = useAppContext();
 
 	const [orders, setOrders] = useState([]);
 
 	const fetchorders = async () => {
-		setOrders(dummyOrders);
+		try {
+			const { data } = await axios.get("/order/seller");
+
+			if (data.success) {
+				setOrders(data.orders);
+			} else {
+				toast.error(data.message);
+			}
+		} catch (error) {
+			console.log(error.response?.data || error.message);
+			toast.error(
+				error.response?.data?.message || "Failed to fetch orders"
+			);
+		}
 	};
 
 	useEffect(() => {

@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { assets } from "../assets/assets";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const InputField = ({ type, placeholder, name, handleChange, address }) => (
 	<input
@@ -7,13 +9,15 @@ const InputField = ({ type, placeholder, name, handleChange, address }) => (
 		placeholder={placeholder}
 		name={name}
 		onChange={handleChange}
-		value={address.name}
+		value={address[name] || ""}
 		required
 		className="w-full px-2 py-2.5 border border-gray-500/30 rounded outline-none text-gray-500 focus:border-primary transition"
 	/>
 );
 
 const AddAddress = () => {
+	const { axios, user, navigate } = useAppContext();
+
 	const [address, setAddress] = useState({
 		firstName: "",
 		lastName: "",
@@ -23,6 +27,7 @@ const AddAddress = () => {
 		state: "",
 		country: "",
 		zipCode: "",
+		phone: "",
 	});
 
 	const handleChange = (e) => {
@@ -34,9 +39,28 @@ const AddAddress = () => {
 		}));
 	};
 
-	const onSubmitHandler = (e) => {
-		e.preventDefault();
+	const onSubmitHandler = async (e) => {
+		try {
+			e.preventDefault();
+			const { data } = await axios.post("/address/add", { address });
+
+			if (data.success) {
+				toast.success(data.message);
+				navigate("/cart");
+			} else {
+				toast.error(data.message);
+			}
+		} catch (error) {
+			console.log(error);
+			toast.error(error.response.data.message || "something went wrong");
+		}
 	};
+
+	useEffect(() => {
+		if (!user) {
+			navigate("/");
+		}
+	}, [user, navigate]);
 
 	return (
 		<div className="mt-16 pb-16">
@@ -106,7 +130,7 @@ const AddAddress = () => {
 							<InputField
 								handleChange={handleChange}
 								address={address}
-								name="zipcode"
+								name="zipCode"
 								type="number"
 								placeholder="zipcode"
 							/>
@@ -124,11 +148,13 @@ const AddAddress = () => {
 							handleChange={handleChange}
 							address={address}
 							name="phone"
-							type="number"
+							type="text"
 							placeholder="phone"
 						/>
 
-						<button className="w-full mt-6 bg-primary text-white py-3 hover:bg-primary-dull transision cursor-pointer uppercase">Save address</button>
+						<button className="w-full mt-6 bg-primary text-white py-3 hover:bg-primary-dull transision cursor-pointer uppercase">
+							Save address
+						</button>
 					</form>
 				</div>
 

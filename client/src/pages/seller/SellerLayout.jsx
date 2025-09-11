@@ -1,9 +1,10 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const SellerLayout = () => {
-	const { setIsseller } = useAppContext();
+	const { axios, navigate } = useAppContext();
 
 	const sidebarLinks = [
 		{ name: "Add Product", path: "/seller", icon: assets.add_icon },
@@ -16,7 +17,19 @@ const SellerLayout = () => {
 	];
 
 	const logout = async () => {
-		setIsseller(false);
+		try {
+			const { data } = await axios.get('/seller/logout')
+			
+			if (data.success) {
+				toast.success(data.message)
+				navigate('/')
+			} else {
+				toast.error(data.message)
+			}
+		} catch (error) {
+			console.log(error)
+			toast.error(error.response.data.message)
+		}
 	};
 
 	return (
@@ -50,9 +63,12 @@ const SellerLayout = () => {
 							className={({ isActive }) =>
 								`flex items-center py-3 px-4 gap-3 
                             ${
-									isActive ? "border-r-4 md:border-r-[6px] bg-primary/10 border-primary text-primary" : "hover:bg-gray-100/90 border-white "
-								}
-							}`}
+								isActive
+									? "border-r-4 md:border-r-[6px] bg-primary/10 border-primary text-primary"
+									: "hover:bg-gray-100/90 border-white "
+							}
+							}`
+							}
 						>
 							<img src={item.icon} alt="" className="w-7 h-7" />
 							<p className="md:block hidden text-center">

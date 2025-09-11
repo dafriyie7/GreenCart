@@ -1,12 +1,13 @@
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
 
-	const { user, setUser, setShowUserLogin, navigate, setSearchQuery, searchQuery, getCartCount } = useAppContext();
+	const { user, setUser, setShowUserLogin, navigate, setSearchQuery, searchQuery, getCartCount, axios } = useAppContext();
 
 	useEffect(() => { 
 		if (searchQuery.length > 0) {
@@ -15,8 +16,20 @@ const Navbar = () => {
 	},[searchQuery])
 
 	const logout = async () => {
-		setUser(null)
-		navigate('/')
+		try {
+			const { data } = await axios.get('/user/logout')
+
+			if (data.success) {
+				console.log(data)
+				toast.success(data.message)
+				setUser(null);
+				navigate("/");
+			} else {
+				toast.error(data.message)
+			}
+		} catch (error) {
+			toast.error(error.response.data.message)
+		}
 	}
 
 	return (
@@ -85,7 +98,7 @@ const Navbar = () => {
 								My orders
 							</li>
 							<li
-								onClick={() => setUser(null)}
+								onClick={logout}
 								className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
 							>
 								Logout
